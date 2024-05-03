@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+DATE=$(date +"%Y-%m-%d_%H:%M:%S")
+
+GsrStatus () {
+  if ps -p $(cat /tmp/gsr-$1) >/dev/null; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+StopGsr () {
+  kill -SIGINT $(cat /tmp/gsr-$1)
+}
+
+StartRecording () {
+    rm $XDG_CACHE_HOME/gsr-record.log
+    source "${XDG_CONFIG_HOME:-$HOME/.config}/gpu-screen-recorder.env"
+    gpu-screen-recorder -v no \
+    -w $WINDOW \
+    -c "mp4" \
+    -q $QUALITY \
+    -k "h264" \
+    -fm $FRAMERATE_MODE \
+    -ac $AUDIO_CODEC \
+    -a "$AUDIO" \
+    -f "$FRAMERATE" \
+    -o "$OUTPUTDIR/../../Recordings/Recording_$DATE.mp4" \
+    -cr $COLOR_RANGE \
+    -cursor $CURSOR_VISIBITLY \
+    -sc $SCRIPT_LOCATION &> $XDG_CACHE_HOME/gsr-record.log & disown
+    echo $! > /tmp/gsr-record
+    echo "recording started"
+}
+
+StartBuffer () {
+  rm $XDG_CACHE_HOME/gsr-buffer.log
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/gpu-screen-recorder.env"
+  gpu-screen-recorder -v no \
+    -w $WINDOW \
+    -c $CONTAINER \
+    -q $QUALITY \
+    -k $CODEC \
+    -fm $FRAMERATE_MODE \
+    -ac $AUDIO_CODEC \
+    -a "$AUDIO" \
+    -f "$FRAMERATE" \
+    -r $REPLAYDURATION \
+    -o "$OUTPUTDIR" \
+    -cr $COLOR_RANGE \
+    -cursor $CURSOR_VISIBITLY \
+    -sc $SCRIPT_LOCATION &> $XDG_CACHE_HOME/gsr-buffer.log & disown
+    echo $! > /tmp/gsr-buffer
+}
+
+Notify() {
+
+    case $XDG_CURRENT_DESKTOP in
+      KDE)
+        qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText "keyframe-record" "$1"
+      ;;
+      Hyprland)
+        echo "osd:$1,false,0,keyframe-record" | socat - /run/user/1000/quickshell.sock
+      ;;
+      *)
+        notify-send -h string:x-canonical-private-synchronous:gsr -a "GSR" "GSR" "$1" -u low
+      ;;
+    esac
+
+}
+
+case $1 in
+  start)
+    if GsrStatus "buffer"; then
+      StartBuffer
+      Notify "GSR started"
+    else
+      echo "GSR is running"
+      Notify "Replay buffer is on" && exit 1
+    fi
+  ;;
+  stop)
+    StopGsr "buffer"
+    Notify "GSR stopped"
+    echo "GSR stopped"
+  ;;
+  toggle)
+    if GsrStatus; then
+      StartBuffer
+      Notify "GSR started"
+    else
+      StopGsr "buffer"
+      echo "GSR stopped"
+      Notify "GSR stopped"
+    fi
+  ;;
+  save)
+    kill -SIGUSR1 $(cat /tmp/gsr-buffer)
+  ;;
+  record)
+    if GsrStatus "record"; then
+      StartRecording
+      Notify "Recoding started"
+    else
+      StopGsr "record"
+      Notify "Recoding stopped"
+    fi
+  ;;
+  *)
+    exit 1
+  ;;
+esac
+

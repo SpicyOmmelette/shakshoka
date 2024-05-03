@@ -1,0 +1,37 @@
+_pkgname="quickshell"
+pkgname="${_pkgname}-git"
+pkgver=0.0.151.54bf485
+pkgrel=1
+pkgdesc="Simple and flexbile QtQuick based desktop shell toolkit"
+arch=(any)
+url="https://git.outfoxxed.me/outfoxxed/quickshell.git"
+license=('GNU LGPL 3')
+depends=('qt6-declarative' 'qt6-base' 'qt6-wayland' 'wayland' 'wayland-protocols')
+makedepends=('ninja' 'cmake')
+source=("${_pkgname}::git+https://git.outfoxxed.me/outfoxxed/quickshell.git")
+conflicts=("${_pkgname}")
+provides=("${_pkgname}")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "${srcdir}/${_pkgname}"
+    echo "0.0".$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+prepare() {
+	cd "${srcdir}/${_pkgname}"
+ 	git checkout 54bf485101c93acdf6f6fb514afbe3eb50eea1fa # can't launch my config passed this commit and I don't wanna bother now
+}
+build() {
+	cd "${srcdir}/${_pkgname}"
+	cmake -GNinja -B build \
+	-DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+	#-DNVIDIA_COMPAT=ON #uncommment for nvidia
+	cmake --build build
+}
+
+package() {
+	cd "${srcdir}/${_pkgname}"
+	DESTDIR="${pkgdir}" cmake --install build
+}
+

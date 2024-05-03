@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+theme="$XDG_CONFIG_HOME/rofi/launcher.rasi"
+
+rofi -show drun -theme $theme
