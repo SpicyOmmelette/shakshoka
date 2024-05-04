@@ -35,12 +35,6 @@ GetWindowInfo() {
                     WindowTitle="`hyprctl activewindow -j | jq -r '.title'`"
                 ;;
 
-                GNOME)
-                    #Requires Window-calls-extended https://github.com/hseliger/window-calls-extended, untested
-                    WindowClass="`gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell/Extensions/WindowsExt --method org.gnome.Shell.Extensions.WindowsExt.FocusClass | cut -d \' -f2`"
-                    WindowTitle="`gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell/Extensions/WindowsExt --method org.gnome.Shell.Extensions.WindowsExt.FocusTitle | cut -d \' -f2 `"
-                ;;
-
                 *)
                     echo "Unsupported desktop environment. Exiting."
                     exit 1
