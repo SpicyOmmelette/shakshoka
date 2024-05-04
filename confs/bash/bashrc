@@ -1,0 +1,60 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+PS1='[\u@\h \W]\$ '
+
+#tiding $HOME
+export XDG_DATA_HOME=${XDG_DATA_HOME:="$HOME/.local/share"}
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:="$HOME/.config"}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:="$HOME/.cache"}
+export XDG_STATE_HOME=${XDG_STATE_HOME:="$HOME/.local/share"}
+export PATH="${PATH}:$HOME/.local/bin"
+
+export XDG_DESKTOP_DIR="$HOME/Desktop"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
+export XDG_TEMPLATES_DIR="$HOME/"
+export XDG_PUBLICSHARE_DIR="$HOME/"
+export XDG_DOCUMENTS_DIR="$HOME/Documents"
+export XDG_MUSIC_DIR="$HOME/Music"
+export XDG_PICTURES_DIR="$HOME/Pictures"
+export XDG_VIDEOS_DIR="$HOME/Videos"
+
+export LESSHISTFILE=-
+export HISTFILE="$XDG_STATE_HOME"/bash/history
+export GOPATH="$XDG_DATA_HOME/go"
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export KDEHOME="$XDG_CONFIG_HOME/kde"
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export ICEAUTHORITY="$XDG_CACHE_HOME/ICEauthority"
+export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME/java"
+
+export EDITOR="nvim"
+
+#aliases
+#alias ls='ls -A --color=auto'
+# alias ls='eza -AhlF --color=always'
+alias ls='eza --icons --group-directories-first -A'
+alias n='nvim'
+alias grep='grep --color=auto'
+#alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
+alias soft-reboot='systemctl soft-reboot'
+alias tree='eza --tree --level=2 --icons'
+alias dust='dust -cb'
+alias N='sudo -E nvim'
+bind 'set show-all-if-ambiguous on'
+
+eval "$(starship init bash)"
+
+# if [ -z "${WAYLAND_DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
+#   exec Hyprland
+# fi
+
